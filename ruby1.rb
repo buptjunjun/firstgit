@@ -793,5 +793,100 @@ puts andy.age
   
 
 ## 异常
-puts "###异常 使用raise 抛出异常"
+puts "###异常 使用raise 抛出异常   "
+puts "---异常处理的原理是：当异常被抛出后，程序被挂起，然后从调用堆栈中向上找，对异常处理代码---"
+def method(name)
+  #raise 也可以不加参数 那会抛出一个 runtimeEror 但是这样不好
+  raise ArgumentError,"no name present!" if name.empty?
+end
 
+#method('')
+
+
+puts "---异常处理使用begin rescue end来 处理的"
+begin
+  method
+rescue ArgumentError =>e
+  puts "rescue a program from an ArgumentError "+e.inspect
+rescue ZeroDivisionError => e
+  puts "rescue a program from an ZeroDivisionError "+e.inspect
+rescue => e #这个resucue用来处理没有被检查到的异常
+  puts e.inspect
+end
+
+
+
+puts "---throw catch:ruby中的break,跳出代码块,当throw :finish 后 就会结束以:finish为参数的代码块"
+def generate_num_excpet_3
+  x = rand(1000)
+  if x%10 == 3
+    puts "throw when x = #{x}"
+    throw :finish ##如果 没有地方catch :finish 则报错`throw': uncaught throw `finish11' (NameError)
+  end
+end
+
+catch(:finish) do 
+  1000.times{generate_num_excpet_3}
+  puts "generate 1000 numbers without 123"  
+end
+puts "---单元测试:看看 MyUnitTest.rb---"
+
+puts "标准输入输出"
+print "请输入一行："
+#a = gets #从命令行读取一行 
+puts a 
+print "请输入多行："
+#a = readlines #从标准输入读取多行 以EOF结尾 Eclipse 中医ctrl+Z表示
+puts a
+
+puts "---文件操作---"
+file = File.open("test.txt") 
+puts file.class
+puts "---File 的each 每次返回一行---"
+file.each {|line| puts line}
+file.close()
+
+puts "---给each 传递一个参数作为行的分解符号---"
+file = File.open("test.txt") 
+file.each(",") {|line| puts line}
+file.close()
+
+puts "---file open 可以接受代码块，open将文件以 f 传递给 代码块 当代码块结束的时候， 会自动关闭这个这个文件---"
+File.open("test.txt") {|f| 
+  puts f.gets } 
+
+#如果使用new的话就必须手动关闭这个文件
+file1 = File.new("test.txt","r")
+puts file1.gets
+file1.close()
+
+puts "--把所有行读入到一个数组中---"
+puts File.open("test.txt").readlines().inspect
+
+puts "---把文件内容全部读入到一个字符串中 立即关闭文件---"
+text = File.read("test.txt")
+puts text
+
+puts "---也可以这样子读入所有的行,他会立即关闭文件--"
+puts File.readlines("test.txt").inspect
+
+
+puts "---文件的指针位置---"
+f = File.open("test.txt")
+puts "f.pos = #{f.pos}"
+puts f.gets
+puts "f.pos = #{f.pos}"
+f.pos= 0 #修改pos继续读取的是上一行
+puts f.gets
+
+
+puts "---写文件---"
+File.open("test1.txt","a+") do |f|  #如果文件不存在会自动生成的
+    f.puts "add to the tail"  #file的puts是将文字写入到文件中 
+end
+
+
+puts "--平台无关性的文件名--"
+puts File.join("a","b","c.txt")
+puts File::SEPARATOR  #系统的分隔符号
+puts "test.txt fullpath = #{File.expand_path("test.txt")}"
