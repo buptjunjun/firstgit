@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 #打印一个字符串
 puts "hello"
 
@@ -438,6 +440,15 @@ puts person1.inspect
 puts person1[:name]
 
 
+puts "---在ruby内部中有一个符号表，像c/c++在编译期间才有一个符号表，编译完成就没有了，而ruby把它保留下来了---"
+puts "--- 打印所有的 符号---"
+puts  Symbol.all_symbols
+
+
+sa = "hello"
+sb = "hello"
+puts sa == sb
+
 #快速创建数组
 puts "---快速创建数组---"
 a = %w(a 1,s  aa)
@@ -501,7 +512,10 @@ puts "---全局变量 $---"
  
 puts "---实例变量 类变量，类方法 实例方法--"
 
+#@@share_by_class可以在类之间访问
+@@share_by_class = "share by class"
 class Square
+  attr_accessor :number_of_squares
   def initialize(side_length)
     @side_length = side_length  # @side_length是实例变量
     if defined?(@@number_of_squares)
@@ -512,7 +526,7 @@ class Square
   end
   
   def area
-    @side_length * @side_length # 不用返回，默认返回最后一个表达式的值
+    @side_length * @side_length # 不用return返回，默认返回最后一个表达式的值
   end
   
   #实例方法 给对象调用的，可以与类方法重名 ,也可以访问并修改类变量
@@ -525,6 +539,13 @@ class Square
   def self.count
     @@number_of_squares
   end
+
+  #@@share_by_class可以在类之间访问
+  def show_var_share_by_class
+    puts "@@share_by_class可以在类之间访问"
+    @@share_by_class
+  end
+
 end
 
 square_a = Square.new(10)
@@ -533,7 +554,8 @@ puts "square of a = #{square_a.area}"
 puts "square of b = #{square_b.area}"
 puts "count of square = #{Square.count}"
 puts "count of square by instance = #{square_b.count}"
-
+puts "@@share_by_class可以在类之间访问 :#{square_b.show_var_share_by_class}"
+#puts "count of square by instance = #{Square.number_of_squares}"
 
 puts "\n ---继承--- ruby只能单继承"
 class ParentClass
@@ -555,12 +577,13 @@ end
 class ChildClass  < ParentClass
   attr_accessor :age
   def initialize()
-    super#调用父类的狗仔方法
+    super#调用父类的构造方法
     @age = 10  
   end
   
   def method2
     super  #调用上一级的相同的方法
+    method1 #调用继承自父类的method1
     puts "method2 in childclass"
   end 
 end
@@ -627,12 +650,17 @@ Pi = 10
 class Drawing
   #Pi是常量 作用于只在类的范围类
   Pi = 3.1415
+  def initialize
+    @my_resource = "my resource"
+  end
+
   class Line
     
   end
   
   class Circle
     def what_am_i
+       puts "访问被嵌套的类的资源 #{@my_resource}"
       "this is a circle"
     end
   end
@@ -759,22 +787,26 @@ puts r.instance_variables.inspect
 
 ##项目和沉程序库
 puts "##项目和程序库"
-#下面自能打印一个 hello from ruby11.rb 尽管require两次
-require "ruby11"
-require "ruby11"
-puts "require end"
-#load 每一次载入都重新处理
-load "ruby11.rb"
-load "ruby11.rb"
 
-puts %q{---从其他目录包含，load 和 require都可以节后绝对路径和本地路径 
+
+puts %q{---从其他目录包含，load 和 require都可以节后绝对路径和本地路径
 例如 require a 首先在本地路径中搜索a.rb,然后会在其他地方搜索 ruby搜索的路径
 包含在$:中
   }
 $:.each {|x| puts x}
 puts "可以添加我们自定义的路径"
-$: <<"c:/"
+$: <<"./"
 $:.each {|x| puts x}
+
+#下面自能打印一个 hello from ruby11.rb 尽管require两次
+require "ruby11"
+require "ruby11"
+puts "require end"
+#load 每一次载入都重新处理
+load "./ruby11.rb"
+load "ruby11.rb"
+
+
 
 puts "---有条件的包含代码---"
 $debugmode = false
@@ -890,3 +922,27 @@ puts "--平台无关性的文件名--"
 puts File.join("a","b","c.txt")
 puts File::SEPARATOR  #系统的分隔符号
 puts "test.txt fullpath = #{File.expand_path("test.txt")}"
+
+puts "------------迭代器------------"
+puts "----map 同 collect----"
+puts [1,2,3,4].map{|x| x+1} #2 3 4 5
+
+puts "----collect 同 map----"
+puts [1,2,3,4].collect{|x| x+1} #2 3 4 5
+
+puts "----reject----"
+puts [1,2,3,4].reject{|x| x > 3} #1 2 3
+
+
+puts "----select----"
+puts [1,2,3,4].select{|x| x > 3} #4
+
+
+puts "----inject----"
+#
+#inject带有一个参数和block。block中的两个参数是有含义的。第一个参数reslut在inject第一次执行block时把inject带的参数付值给它，
+# element就是数组中的元素，该例中inject一共执行4次block，每次执行block完后，最后语句的结果再付值给result，
+# 如此循环，直到遍历数组中所有
+#因为数组有4个元素，所以要执行4次block操作：
+#
+puts [1,2,3,4].inject(10){|result, element| result+element} #20
