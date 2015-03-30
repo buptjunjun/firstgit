@@ -946,3 +946,9 @@ puts "----inject----"
 #因为数组有4个元素，所以要执行4次block操作：
 #
 puts [1,2,3,4].inject(10){|result, element| result+element} #20
+
+array = [1, 2, 3, 4, 5, 6].inject([]) do |result, element|
+  result << element.to_s if element % 2 == 0
+  result
+end
+puts array  #array  => ["2", "4", "6"]
