@@ -952,3 +952,44 @@ array = [1, 2, 3, 4, 5, 6].inject([]) do |result, element|
   result
 end
 puts array  #array  => ["2", "4", "6"]
+
+puts "----------ruby中的* 表示将多个参数打包到一个数组中---------"
+def max(*param)
+  return param[0] + param[1]
+end
+
+puts max(1,2)
+
+puts "------ruby中的&表示代码块------"
+def min(a,b, &p)
+  p.call(a,b)
+end
+
+min(1,2){|a,b| puts a+b }
+min(1,2) do |a,b| puts a+b end
+
+
+puts "------yield执行代码块------"
+def call_block
+  yield(1)
+  yield(2)
+  yield(3)
+end
+
+call_block { |i|
+  puts "#{i}: Blocks are cool!"
+}
+
+
+puts "----参数尾巴的Hash可以省略{ }---"
+
+def my_print(a, b, options)
+  puts a
+  puts b
+  puts options[:x]
+  puts options[:y]
+  puts options[:z]
+end
+
+my_print("A", "B", { :x => 123, :z => 456 } )
+my_print("A", "B", :x => 123, :z => 456) # 结果相同
